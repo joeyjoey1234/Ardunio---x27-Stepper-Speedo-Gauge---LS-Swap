@@ -13,10 +13,14 @@ Right now the program is setup for a 1966 C10 Speedo, but take my code as a exam
  - Atinty85 i have is at 16mhz
  - i recomend you use caps above 16v for extra cushion
 
-#Warnings
-Its a bit jumpy because your not suposed to control stepper motors with a atiny or ardunio usualy your going to use a stepper control chip like a AX1201728SG with the same libaray if you want that smooooothness. I personally did it this way to have a speedo without spending like 100+$ on a device that converts the speedo signal into the spinning speedo cable.
+# Warnings
+Its a bit jumpy because your not suposed to control stepper motors with a atiny or ardunio usualy your going to use a stepper control chip like a AX1201728SG with the same libaray if you want that smooooothness. 
 
-#Example board
+I personally did it this way to have a speedo without spending like 100+$ on a device that converts the speedo signal into the spinning speedo cable.
+
+If you buy parts off aliexpress it comes out really cheap, maybe the most expensive parts would be the stepper motors and what ever your going to use as a programer
+
+# Example board
 I have 2 versions of this project Circuit board on PCBWAY
 
 Keep in mind these are for cars.
