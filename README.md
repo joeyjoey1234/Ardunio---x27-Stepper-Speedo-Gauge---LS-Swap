@@ -9,7 +9,8 @@ Right now the program is setup for a 1966 C10 Speedo, but take my code as a exam
   - Converts to mph (4000 pulses per mile singal)
   - mph to steps (1.288 is the angle per mile on my gauge)
   - Does the above 3 times and gets an average on steps
-    - Any crazy movements above 14mph(54 steps) is taken out of the final average calculation.
+    - Any crazy movements Plus or minus 14mph(54 steps) is taken out of the final average calculation.
+      - Gets rid of any junk data that cant be possible as measurement calculations happen in fraction of a second
   - updates the stepper motor to the average position
 
  - Atinty85 i have is at 16mhz
