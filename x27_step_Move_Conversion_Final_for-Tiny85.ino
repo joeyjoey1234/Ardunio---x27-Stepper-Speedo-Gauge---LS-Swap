@@ -14,13 +14,12 @@ void setup(void) {
   // run both motors against stops to re-zero
   motor1.zero();// this is a slow, blocking operation
   // Set X as the starting point for this project, X being where 0 mph would be on your gauge
-  motor1.setPosition(212);
+  motor1.setPosition(0); // since the gauge will stop the needle from going to zero i am setting this to 0
   motor1.updateBlocking(); /// Soooo important you dont even know
 }
 
 void setMotor(int steps){
   motor1.setPosition(steps);
-  motor1.update();
   }
   
 double mph_conversion(int htz){
@@ -29,7 +28,6 @@ double mph_conversion(int htz){
   ///The 4000 here is super important
   // 4000 is what my PCM is spitting out for Pulses PER Miles, if yours is diffrent change it here
   mph = mph / 4000;
-  motor1.update();
   return(mph);
   }
   
@@ -44,7 +42,13 @@ double pcmhz(){
   // the real method is to divid it
   //double hz = 1000000.0 / period;
   //return(hz);
-  //return 60;
+  unsigned long hz1High = pulseIn(PCMpin, HIGH); ///remove/add the 300ul, No signal from pcm slows the script
+  unsigned long hz1Low = pulseIn(PCMpin, LOW);
+  // below is the cycle is microseconds
+  double period;
+  period = hz1High + hz1Low;
+  double hz = 1000000 / period;
+  return(hz);
   }
 
   
@@ -63,24 +67,65 @@ int mph_to_steps(int mph){
   //int middle = 405; // just putting this here for fun
   // as i put this in the car i can tune this to be more accurate.ill print the mph to the console to log
   double move = mph * 1.288;
-  move = move + 70.76; // 70.76 is the base angle at 0 which is 212 / 3 (not exact since i am using 6.44 per 5 mph)
+  //move = move + 70.76; // 70.76 is the base angle at 0 which is 212 / 3 (not exact since i am using 6.44 per 5 mph)
+  // i removed the base angle since i will set the needle to be at 0 mph for its base.
   int Final_Steps = move * 3;
-  motor1.update();
   return Final_Steps;
   }
 
 void loop(void) {
-  unsigned long hz1High = pulseIn(PCMpin, HIGH); ///remove/add the 300ul, No signal from pcm slows the script
-  unsigned long hz1Low = pulseIn(PCMpin, LOW);
+  //unsigned long hz1High = pulseIn(PCMpin, HIGH); ///remove/add the 300ul, No signal from pcm slows the script
+  //unsigned long hz1Low = pulseIn(PCMpin, LOW);
   // below is the cycle is microseconds
-  double period;
-  period = hz1High + hz1Low;
+  //double period;
+  //period = hz1High + hz1Low;
   // convert to hz (its microseconds, this means we need to convert microseconds to HZ, which is just microseconds to seconds, microseconds to seconds is just X(Microseconds) * 1,000,000)
   // the real method is to divid it
-  double hz = 1000000 / period;
-  int mph = mph_conversion(hz);
-  int steps = mph_to_steps(mph);
-  motor1.setPosition(steps);
+  //double hz = 1000000 / period;
+  double hz1 = pcmhz();
+  double hz2 = pcmhz();
+  double hz3 = pcmhz();
+
+  int mph1 = mph_conversion(hz1);
+  int mph2 = mph_conversion(hz2);
+  int mph3 = mph_conversion(hz3);
+
+  int steps1 = mph_to_steps(mph1);
+  int steps2 = mph_to_steps(mph2);
+  int steps3 = mph_to_steps(mph3);
+
+  int stepsArray[3] = {steps1, steps2, steps3};
+
+  bool includeInAverage[3] = {true, true, true};
+  int validCount = 3;
+  for (int i = 0; i < 3; i++) {
+    for (int j = i + 1; j < 3; j++) {
+      if (abs(stepsArray[i] - stepsArray[j]) > 54) {
+        // If the difference is more than 54, mark both for exclusion
+        //54 steps on my gauge is 14mph any changes more than 14 mph are going to be ignored
+        // and thats 14mph in less than a fraction of a second which is impossible
+        if (includeInAverage[i]) {
+          includeInAverage[i] = false;
+          validCount--;
+        }
+        if (includeInAverage[j]) {
+          includeInAverage[j] = false;
+          validCount--;
+        }
+      }
+    }
+  }
+  double sum = 0;
+  for (int i = 0; i < 3; i++) {
+    if (includeInAverage[i]) {
+      sum += stepsArray[i];
+    }
+  }
+
+  double average = validCount > 0 ? sum / validCount : 0;
+
+
+  motor1.setPosition(average);
   motor1.updateBlocking(); // this shit is a life saver
 
 }
