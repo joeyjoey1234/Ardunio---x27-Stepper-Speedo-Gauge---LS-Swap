@@ -5,6 +5,7 @@ Program to control a x27 Stepper motor as a speedo, using an ATTiny or Arduino U
 Right now the program is setup for a 1966 C10 Speedo, but take my code as a example for your project. (the number i multiply the steps by is my guesstimate angle i use for my gauge)
 - Code does the following
   - Gets the singal period
+  - Convert period to hz
   - Converts to mph (4000 pulses per mile singal)
   - mph to steps (1.288 is the angle per mile on my gauge)
   - Does the above 3 times and gets an average on steps
